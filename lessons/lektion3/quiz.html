@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="sv">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>HTML-länkar Quiz</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f4f7f6;
+                color: #333;
+                margin: 0;
+                padding: 20px;
+            }
+            .quiz-container {
+                max-width: 700px;
+                margin: 0 auto;
+                background: #fff;
+                padding: 30px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            }
+            h1 {
+                color: #2c3e50;
+                font-size: 24px;
+                margin-top: 0;
+                border-bottom: 2px solid #ecf0f1;
+                padding-bottom: 10px;
+            }
+            .question-box {
+                display: none;
+            }
+            .question-box.active {
+                display: block;
+            }
+            .question-number {
+                font-size: 14px;
+                color: #7f8c8d;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 5px;
+            }
+            .question-text {
+                font-size: 18px;
+                font-weight: 600;
+                color: #2c3e50;
+                margin-bottom: 20px;
+                line-height: 1.4;
+            }
+            .options-list {
+                list-style: none;
+                padding: 0;
+                margin: 0 0 20px 0;
+            }
+            .option-item {
+                background: #f8f9fa;
+                border: 2px solid #e9ecef;
+                padding: 14px 20px;
+                margin-bottom: 10px;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                font-size: 15px;
+            }
+            .option-item:hover {
+                background: #e9ecef;
+                border-color: #ced4da;
+            }
+            .option-item.correct {
+                background: #d4edda;
+                border-color: #c3e6cb;
+                color: #155724;
+                font-weight: 600;
+            }
+            .option-item.incorrect {
+                background: #f8d7da;
+                border-color: #f5c6cb;
+                color: #721c24;
+            }
+            .rationale {
+                margin-top: 15px;
+                padding: 12px 15px;
+                background-color: #e2f0d9;
+                border-left: 4px solid #70ad47;
+                border-radius: 4px;
+                font-size: 14px;
+                display: none;
+            }
+            .rationale.visible {
+                display: block;
+            }
+            .rationale.wrong-rationale {
+                background-color: #fce8e6;
+                border-left: 4px solid #ea4335;
+            }
+            .hint-btn {
+                background: none;
+                border: none;
+                color: #3498db;
+                cursor: pointer;
+                font-size: 14px;
+                padding: 0;
+                margin-bottom: 15px;
+                text-decoration: underline;
+            }
+            .hint-text {
+                display: none;
+                background: #eef7fc;
+                border-left: 4px solid #3498db;
+                padding: 10px 15px;
+                font-size: 14px;
+                margin-bottom: 15px;
+                border-radius: 4px;
+            }
+            .navigation {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 25px;
+            }
+            .btn {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 14px;
+                transition: background 0.2s;
+            }
+            .btn-next {
+                background: #2ecc71;
+                color: white;
+            }
+            .btn-next:hover {
+                background: #27ae60;
+            }
+            .btn-next:disabled {
+                background: #bdc3c7;
+                cursor: not-allowed;
+            }
+            .result-screen {
+                display: none;
+                text-align: center;
+                padding: 20px 0;
+            }
+            .score-display {
+                font-size: 48px;
+                font-weight: bold;
+                color: #2ecc71;
+                margin: 20px 0;
+            }
+            .restart-btn {
+                background: #34495e;
+                color: white;
+                padding: 12px 25px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+            }
+            .restart-btn:hover {
+                background: #2c3e50;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="quiz-container">
+            <div id="quiz-content">
+                </div>
+            
+            <div id="result-screen" class="result-screen">
+                <h2>Quizet är klart!</h2>
+                <p>Ditt resultat blev:</p>
+                <div id="score-display" class="score-display">0 / 10</div>
+                <button class="restart-btn" onclick="restartQuiz()">Gör om quizet</button>
+            </div>
+        </div>
+
+        <script>
+            const quizData = [
+                {
+                    question: "Baserat på filstrukturen i bilden, du befinner dig i 'index.html' och vill skapa en relativ länk till 'om.html'. Vad ska stå i href-attributet?",
+                    hint: "Eftersom båda filerna ligger direkt i rotmappen (på samma nivå), behöver du inte gå upp eller ner i några mappar.",
+                    options: [
+                        { text: "om.html", rationale: "Rätt! Båda filerna ligger i samma rotmapp, så du kan referera till filnamnet direkt.", isCorrect: true },
+                        { text: "../om.html", rationale: "Fel. Att använda '../' betyder att du går upp en nivå, vilket skulle lämna rotmappen helt.", isCorrect: false },
+                        { text: "blogginlägg/om.html", rationale: "Fel. Detta söker efter 'om.html' inuti mappen 'blogginlägg', men filen ligger i roten.", isCorrect: false },
+                        { text: "dokument/om.html", rationale: "Fel. Detta skulle leta efter filen i mappen 'dokument', men den ligger i roten.", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Du befinner dig i 'inlägg-1.html' (i mappen 'Januari') och vill infoga bilden 'python.png' som ligger i mappen 'bilder'. Vilken är den korrekta relativa sökvägen?",
+                    hint: "Tänk på hur många nivåer upp du måste gå för att komma till rotmappen där mappen 'bilder' finns.",
+                    options: [
+                        { text: "../../bilder/python.png", rationale: "Rätt! Du går upp ett steg till 'blogginlägg' (..), sedan ett steg till roten (..), och går därefter in i 'bilder/python.png'.", isCorrect: true },
+                        { text: "../bilder/python.png", rationale: "Fel. Detta går bara upp ett steg till 'blogginlägg', men mappen 'bilder' ligger i roten, två steg upp.", isCorrect: false },
+                        { text: "bilder/python.png", rationale: "Fel. Detta letar efter en mapp som heter 'bilder' inuti mappen 'Januari', vilket inte stämmer.", isCorrect: false },
+                        { text: "/bilder/python.png", rationale: "Fel. Detta är en rot-relativ sökväg, men frågan efterfrågade specifikt en vanlig relativ sökväg.", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Du befinner dig i 'index.html' (i rotmappen) och vill länka till 'inlägg-3.html' i mappen 'Februari'. Vilken är den korrekta relativa sökvägen?",
+                    hint: "Från roten måste du gå in i mappen 'blogginlägg' och sedan vidare in i nästa undermapp.",
+                    options: [
+                        { text: "blogginlägg/Februari/inlägg-3.html", rationale: "Rätt! Du börjar i roten, går in i mappen 'blogginlägg', vidare till undermappen 'Februari' och pekar ut filen.", isCorrect: true },
+                        { text: "../blogginlägg/Februari/inlägg-3.html", rationale: "Fel. Du ska inte gå uppåt med '../' eftersom du redan startar på den högsta nivån (roten).", isCorrect: false },
+                        { text: "Februari/inlägg-3.html", rationale: "Fel. Mappen 'Februari' ligger inte direkt i roten, utan inuti mappen 'blogginlägg'.", isCorrect: false },
+                        { text: "blogginlägg/inlägg-3.html", rationale: "Fel. Detta missar undermappen 'Februari' där filen faktiskt är sparad.", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Du befinner dig i 'inlägg-2.html' (i mappen 'Januari') och vill länka till 'inlägg-1.html' som ligger i samma mapp. Vilken är den enklaste relativa sökvägen?",
+                    hint: "När två filer befinner sig i exakt samma undermapp behöver du inte navigera till några andra mappar.",
+                    options: [
+                        { text: "inlägg-1.html", rationale: "Rätt! Eftersom filerna delar samma mapp räcker det med att skriva filnamnet direkt.", isCorrect: true },
+                        { text: "../inlägg-1.html", rationale: "Fel. Detta skulle leta efter filen i mappen 'blogginlägg' istället för mappen 'Januari'.", isCorrect: false },
+                        { text: "Januari/inlägg-1.html", rationale: "Fel. Detta letar efter en undermapp kallad 'Januari' inuti mappen där du redan står.", isCorrect: false },
+                        { text: "/Januari/inlägg-1.html", rationale: "Fel. Detta är felaktigt eftersom mappen 'Januari' inte ligger direkt under roten, utan under 'blogginlägg'.", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Vad blir den korrekta rot-relativa (root relative) sökvägen till filen 'rapport.pdf' oavsett vilken HTML-fil på webbplatsen du befinner dig i?",
+                    hint: "En rot-relativ sökväg startar alltid med ett snedstreck (/) som representerar rotmappen.",
+                    options: [
+                        { text: "/dokument/rapport.pdf", rationale: "Rätt! Snedstrecket i början pekar på roten, följt av mappen 'dokument' och till sist filnamnet.", isCorrect: true },
+                        { text: "dokument/rapport.pdf", rationale: "Fel. Detta är en vanlig relativ sökväg, inte en rot-relativ sökväg då den saknar inledande snedstreck.", isCorrect: false },
+                        { text: "/rapport.pdf", rationale: "Fel. Filen ligger inte direkt i roten, utan inuti mappen 'dokument'.", isCorrect: false },
+                        { text: "../dokument/rapport.pdf", rationale: "Fel. Rot-relativa sökvägar använder aldrig punkter (../) för att navigera uppåt.", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Du befinner dig i 'författare.html' (i roten) och vill visa bilden 'logga.png'. Vilken är den korrekta relativa sökvägen?",
+                    hint: "Du startar i roten och ska ta dig in i mappen där bilderna ligger.",
+                    options: [
+                        { text: "bilder/logga.png", rationale: "Rätt! Eftersom 'författare.html' ligger i roten går du direkt in i mappen 'bilder' och väljer filen.", isCorrect: true },
+                        { text: "/logga.png", rationale: "Fel. Detta letar efter 'logga.png' direkt i rotmappen, men den ligger i undermappen 'bilder'.", isCorrect: false },
+                        { text: "../bilder/logga.png", rationale: "Fel. Det finns ingen anledning att gå uppåt eftersom du redan står på den översta nivån.", isCorrect: false },
+                        { text: "Min blog/bilder/logga.png", rationale: "Fel. Man inkluderar normalt inte själva rotmappens eget namn i en lokal relativ sökväg.", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Du befinner dig i 'inlägg-3.html' (i mappen 'Februari') och vill länk till 'författare.html' som ligger i rotmappen. Vilken är den korrekta relativa sökvägen?",
+                    hint: "Räkna hur många mappar upp du måste backa från mappen 'Februari' för att nå rotmappen.",
+                    options: [
+                        { text: "../../författare.html", rationale: "Rätt! Ett steg upp (..) tar dig till 'blogginlägg', och nästa steg (..) tar dig till rotmappen där filen finns.", isCorrect: true },
+                        { text: "../författare.html", rationale: "Fel. Detta tar dig bara upp till mappen 'blogginlägg', men filen ligger ett steg högre upp.", isCorrect: false },
+                        { text: "författare.html", rationale: "Fel. Detta söker efter filen inuti mappen 'Februari', men den ligger i roten.", isCorrect: false },
+                        { text: "../../../författare.html", rationale: "Fel. Detta backar tre steg, vilket är ett steg för mycket och hamnar utanför webbplatsens rotmapp.", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Du befinner dig i 'inlägg-3.html' (i mappen 'Februari') och vill skapa en rot-relativ länk till 'inlägg-1.html' (i mappen 'Januari'). Hur skrivs den?",
+                    hint: "En rot-relativ länk utgår alltid från roten (/) och går sedan nedåt hela vägen till filen.",
+                    options: [
+                        { text: "/blogginlägg/Januari/inlägg-1.html", rationale: "Rätt! Den börjar från roten (/), går via 'blogginlägg' till 'Januari' och slutligen till filen.", isCorrect: true },
+                        { text: "../Januari/inlägg-1.html", rationale: "Fel. Detta är en vanlig relativ sökväg, inte en rot-relativ sökväg.", isCorrect: false },
+                        { text: "/Januari/inlägg-1.html", rationale: "Fel. Denna sökväg missar att mappen 'Januari' ligger inuti mappen 'blogginlägg'.", isCorrect: false },
+                        { text: "blogginlägg/Januari/inlägg-1.html", rationale: "Fel. Utan ett inledande snedstreck tolkar webbläsaren detta som en vanlig relativ sökväg.", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Om du ändrar strukturen så att 'rapport.pdf' flyttas från mappen 'dokument' direkt ut till rotmappen, vad blir då dess nya rot-relativa sökväg?",
+                    hint: "När en fil ligger direkt i roten behövs bara det inledande snedstrecket före filnamnet.",
+                    options: [
+                        { text: "/rapport.pdf", rationale: "Rätt! Snedstrecket anger rotmappen, och eftersom filen ligger där skrivs namnet direkt efter.", isCorrect: true },
+                        { text: "rapport.pdf", rationale: "Fel. Detta är en vanlig relativ sökväg som bara fungerar om du redan står i rotmappen.", isCorrect: false },
+                        { text: "/rot/rapport.pdf", rationale: "Fel. Man skriver inte ordet 'rot', utan snedstrecket (/) i sig självt symboliserar roten.", isCorrect: false },
+                        { text: "./rapport.pdf", rationale: "Fel. Detta betyder 'i nuvarande mapp' och är en vanlig relativ sökväg.", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Du befinner dig i 'inlägg-1.html' (i mappen 'Januari') och vill länka till 'inlägg-3.html' (i mappen 'Februari'). Vilken relativ sökväg stämmer överens med exemplet i bilden?",
+                    hint: "Du måste först gå upp en nivå till mappen 'blogginlägg' och sedan gå ner i mappen 'Februari'.",
+                    options: [
+                        { text: "../Februari/inlägg-3.html", rationale: "Rätt! Du går upp ett steg (..) till 'blogginlägg' och går sedan ner i 'Februari/inlägg-3.html'.", isCorrect: true },
+                        { text: "../../Februari/inlägg-3.html", rationale: "Fel. Detta går upp två steg till roten, vilket gör att sökvägen inte hittar mappen 'Februari' på rätt ställe.", isCorrect: false },
+                        { text: "/blogginlägg/Februari/inlägg-3.html", rationale: "Fel. Detta är den rot-relativa sökvägen, inte den vanliga relativa sökvägen.", isCorrect: false },
+                        { text: "Februari/inlägg-3.html", rationale: "Fel. Detta antar att mappen 'Februari' ligger inuti mappen 'Januari', vilket är fel.", isCorrect: false }
+                    ]
+                }
+            ];
+
+            let currentQuestion = 0;
+            let score = 0;
+            let hasAnswered = false;
+
+            function initQuiz() {
+                const container = document.getElementById('quiz-content');
+                container.innerHTML = '';
+                
+                quizData.forEach((q, index) => {
+                    let optionsHTML = '';
+                    q.options.forEach((opt, optIndex) => {
+                        optionsHTML += `<li class="option-item" onclick="selectOption(${index}, ${optIndex}, this)">${escapeHtml(opt.text)}</li>`;
+                    });
+
+                    const qBox = document.createElement('div');
+                    qBox.className = `question-box ${index === 0 ? 'active' : ''}`;
+                    qBox.id = `q-box-${index}`;
+                    qBox.innerHTML = `
+                        <div class="question-number">Fråga ${index + 1} av ${quizData.length}</div>
+                        <div class="question-text">${escapeHtml(q.question)}</div>
+                        
+                        <button class="hint-btn" onclick="toggleHint(${index})">Visa ledtråd</button>
+                        <div class="hint-text" id="hint-${index}">${escapeHtml(q.hint)}</div>
+                        
+                        <ul class="options-list">${optionsHTML}</ul>
+                        <div class="rationale" id="rationale-${index}"></div>
+                        
+                        <div class="navigation">
+                            <div></div>
+                            <button class="btn btn-next" id="next-btn-${index}" disabled onclick="nextQuestion(${index})">
+                                ${index === quizData.length - 1 ? 'Visa resultat' : 'Nästa fråga'}
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(qBox);
+                });
+            }
+
+            function escapeHtml(text) {
+                return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            }
+
+            function toggleHint(index) {
+                const hint = document.getElementById(`hint-${index}`);
+                hint.style.display = hint.style.display === 'block' ? 'none' : 'block';
+            }
+
+            function selectOption(qIndex, optIndex, element) {
+                if (hasAnswered) return;
+                hasAnswered = true;
+
+                const question = quizData[qIndex];
+                const selectedOption = question.options[optIndex];
+                const rationaleBox = document.getElementById(`rationale-${qIndex}`);
+                const nextBtn = document.getElementById(`next-btn-${qIndex}`);
+                
+                const parent = element.parentNode;
+                const items = parent.getElementsByClassName('option-item');
+                
+                if (selectedOption.isCorrect) {
+                    element.classList.add('correct');
+                    score++;
+                    rationaleBox.className = "rationale visible";
+                } else {
+                    element.classList.add('incorrect');
+                    rationaleBox.className = "rationale visible wrong-rationale";
+                    for(let i=0; i<items.length; i++) {
+                        if(question.options[i].isCorrect) {
+                            items[i].classList.add('correct');
+                        }
+                    }
+                }
+                
+                rationaleBox.innerText = selectedOption.rationale;
+                nextBtn.removeAttribute('disabled');
+            }
+
+            function nextQuestion(index) {
+                hasAnswered = false;
+                document.getElementById(`q-box-${index}`).classList.remove('active');
+                
+                if (index + 1 < quizData.length) {
+                    document.getElementById(`q-box-${index + 1}`).classList.add('active');
+                } else {
+                    showResults();
+                }
+            }
+
+            function showResults() {
+                document.getElementById('quiz-content').style.display = 'none';
+                const resultScreen = document.getElementById('result-screen');
+                resultScreen.style.display = 'block';
+                
+                const scoreDisplay = document.getElementById('score-display');
+                scoreDisplay.innerText = `${score} / ${quizData.length}`;
+                if(score >= 8) {
+                    scoreDisplay.style.color = '#2ecc71';
+                } else if(score >= 5) {
+                    scoreDisplay.style.color = '#f39c12';
+                } else {
+                    scoreDisplay.style.color = '#e74c3c';
+                }
+            }
+
+            function restartQuiz() {
+                currentQuestion = 0;
+                score = 0;
+                hasAnswered = false;
+                document.getElementById('quiz-content').style.display = 'block';
+                document.getElementById('result-screen').style.display = 'none';
+                initQuiz();
+            }
+
+            // Starta quizet
+            initQuiz();
+        </script>
+
+    </body>
+</html>
